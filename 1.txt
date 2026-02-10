@@ -1,0 +1,50 @@
+#include <iostream>
+#include <thread>   
+#include <chrono>   
+#include <mutex>    
+ 
+using namespace std;
+ 
+const int WIDTH = 50;      
+const int DELAY_MS = 200;  
+mutex printMutex;          
+ 
+void moveFish(string name, int x, int velocity)
+{
+    while (true)
+    {
+        printMutex.lock();
+        cout << "Рибка " << name << " пливе. Координата X = " << x << endl;
+        printMutex.unlock();
+ 
+        x += velocity;
+ 
+        if (x >= WIDTH || x <= 0)
+        {
+            velocity = -velocity;
+ 
+            printMutex.lock();
+            cout << ">>> Рибка " << name << " розвернулася! <<<" << endl;
+            printMutex.unlock();
+        }
+ 
+        this_thread::sleep_for(chrono::milliseconds(DELAY_MS));
+    }
+}
+ 
+int main()
+{
+    setlocale(LC_ALL, "Ukrainian");
+    cout << "Запуск акваріуму..." << endl;
+ 
+    // Fish_Rich вместо Рыбка_1
+    thread t1(moveFish, "Fish_Rich", 0, 5);
+ 
+    // Fish_Nick вместо Рыбка_2
+    thread t2(moveFish, "Fish_Nick", WIDTH, -5);
+ 
+    t1.join();
+    t2.join();
+ 
+    return 0;
+}

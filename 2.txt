@@ -1,0 +1,40 @@
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <mutex>
+ 
+using namespace std;
+ 
+const int HEIGHT = 15;     
+const int DELAY_MS = 200;  
+mutex consoleMutex;        
+ 
+void moveGuppy(string name, int y, int velocity) {
+    while (true) {
+        consoleMutex.lock();
+        cout << "Guppy " << name << " position Y: " << y << endl;
+        consoleMutex.unlock();
+ 
+        y += velocity;
+ 
+        if (y >= HEIGHT || y <= 0) {
+            velocity = -velocity; 
+            
+            consoleMutex.lock();
+            cout << ">>> " << name << " розвернувся! <<<" << endl;
+            consoleMutex.unlock();
+        }
+ 
+        this_thread::sleep_for(chrono::milliseconds(DELAY_MS));
+    }
+}
+ 
+int main() {
+    thread t1(moveGuppy, "Rich", 0, 1);
+    thread t2(moveGuppy, "Nick", HEIGHT, -1);
+ 
+    t1.join();
+    t2.join();
+ 
+    return 0;
+}
